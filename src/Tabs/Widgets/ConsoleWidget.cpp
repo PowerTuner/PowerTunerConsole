@@ -23,6 +23,9 @@ namespace PWT::CUI {
 
         bakWindowTextColor = pal.color(QPalette::WindowText);
 
+        pal.setColor(QPalette::Base, QColor(23, 25, 29));
+
+        setPalette(pal);
         setAutoFillBackground(true);
         setFocusPolicy(Qt::NoFocus);
         setSelected(false);
