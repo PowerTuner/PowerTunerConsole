@@ -19,7 +19,7 @@
 
 namespace PWT::CUI {
     ConsoleWidget::ConsoleWidget() {
-        const QPalette pal = palette();
+        QPalette pal = palette();
 
         bakWindowTextColor = pal.color(QPalette::WindowText);
 
