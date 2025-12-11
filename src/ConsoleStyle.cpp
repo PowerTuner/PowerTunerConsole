@@ -22,7 +22,7 @@
 #include "ConsoleStyle.h"
 
 namespace PWT::CUI {
-    QPalette ConsoleStyle::getPalette() const {
+    QPalette ConsoleStyle::getPalette() {
         const QColor mainTextColor = QColor(250,250,250);
 
         return {

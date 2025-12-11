@@ -20,6 +20,7 @@
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "ConsoleStyle.h"
 #include "external/SDL/include/SDL3/SDL_init.h"
 #include "external/SDL/include/SDL3/SDL_hints.h"
 #include "pwtShared/Utils.h"
@@ -89,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
     consoleSettings->setAppDataPath(appDataPath);
     inputRanges->setAppDataPath(globalDataPath);
+    tabWidget->setPalette(PWT::CUI::ConsoleStyle::getPalette());
     tabWidget->addTab(homeTab, "Home");
     tabWidget->addTab(logTab, "Log");
     tabWidget->addTab(daemonsTab, "Daemons");

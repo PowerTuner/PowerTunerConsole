@@ -16,16 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ConsoleWidget.h"
+#include "../../ConsoleStyle.h"
 
 namespace PWT::CUI {
     ConsoleWidget::ConsoleWidget() {
-        QPalette pal = palette();
+        setPalette(ConsoleStyle::getPalette());
 
-        bakWindowTextColor = pal.color(QPalette::WindowText);
+        bakWindowTextColor = palette().color(QPalette::WindowText);
 
-        pal.setColor(QPalette::Base, QColor(23, 25, 29));
-
-        setPalette(pal);
         setAutoFillBackground(true);
         setFocusPolicy(Qt::NoFocus);
         setSelected(false);

@@ -18,12 +18,13 @@
 #include <QVBoxLayout>
 
 #include "DaemonWidget.h"
+#include "../../../ConsoleStyle.h"
 
 namespace PWT::CUI {
     DaemonWidget::DaemonWidget(const QString &name, const QString &adr, const quint16 port) {
         QHBoxLayout *lyt = new QHBoxLayout();
         QVBoxLayout *btnLyt = new QVBoxLayout();
-        QPalette pal = palette();
+        QPalette pal = ConsoleStyle::getPalette();
 
         daemonLbl = new QLabel(QString("%1 [%2:%3]").arg(name.toUpper(), adr, QString::number(port)));
         dname = name;

@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     QCommandLineParser parser;
 
     QApplication::setStyle(appStyle);
-    QApplication::setPalette(appStyle->getPalette());
+    QApplication::setPalette(PWT::CUI::ConsoleStyle::getPalette());
     QApplication::setQuitOnLastWindowClosed(false);
 
     QApplication a(argc, argv);

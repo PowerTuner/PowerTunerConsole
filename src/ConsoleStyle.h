@@ -41,7 +41,7 @@ namespace PWT::CUI {
         [[nodiscard]] qreal dpiScaled(qreal value, const QStyleOption *option) const;
 
     public:
-        [[nodiscard]] QPalette getPalette() const;
+        [[nodiscard]] static QPalette getPalette();
         int pixelMetric(PixelMetric m, const QStyleOption *opt, const QWidget *w) const override;
         void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *w) const override;
         void drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p, const QWidget *w) const override;
