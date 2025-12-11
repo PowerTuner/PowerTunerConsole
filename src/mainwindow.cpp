@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "ConsoleStyle.h"
+#include "../version.h"
 #include "external/SDL/include/SDL3/SDL_init.h"
 #include "external/SDL/include/SDL3/SDL_hints.h"
 #include "pwtShared/Utils.h"
@@ -58,7 +59,7 @@ MainWindow::~MainWindow() {
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    setWindowTitle("PowerTuner Console");
+    setWindowTitle(QString("PowerTuner Console %1.%2").arg(CLIENT_VER_MAJOR).arg(CLIENT_VER_MINOR));
     setWindowIcon(QIcon(":/ico/pwt"));
 
     const QString globalDataPath = QString("%1/PowerTuner").arg(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
