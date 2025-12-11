@@ -97,7 +97,7 @@ namespace PWT::CUI {
     }
 
     void FloatingIcon::mouseMoveEvent(QMouseEvent *e) {
-        if (!e->button() != Qt::LeftButton)
+        if ((!e->button()) != Qt::LeftButton)
             return;
 
         const QPointF delta = e->globalPosition() - oldMousePos;
