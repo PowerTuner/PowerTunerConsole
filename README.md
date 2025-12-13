@@ -8,6 +8,14 @@ For a command-line client, see [PowerTunerCLI](https://github.com/PowerTuner/Pow
 
 For a classic desktop client, see [PowerTunerClient](https://github.com/PowerTuner/PowerTunerClient)
 
+## How to start
+
+Go to **Daemons** tab and connect to **local** daemon, or add a new daemon if you installed the daemon/service in another device and want to connect to it.
+
+A gamepad or a keyboard is required to control its UI, mouse is not supported and wont work for some parts of it.
+
+Use the desktop client for a classic mouse/keyboard UI.
+
 ## Accessibility
 
 ### Text To Speech (TTS)
