@@ -17,15 +17,18 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class VRMCurrentWidget final: public SliderLimitWidget {
+    class VRMCurrentWidget final: public RADJSliderWidget {
     public:
-        VRMCurrentWidget(): SliderLimitWidget("VRM Current Limit",
+        explicit VRMCurrentWidget(const bool hasReadFeature): RADJSliderWidget("VRM Current Limit",
                                             "Amps",
-                                            [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); }) {}
+                                            [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); },
+                                            hasReadFeature) {
+            slider->setPageStep(100);
+        }
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->vrmCurrent.isValid());
@@ -35,17 +38,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->vrmCurrent.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->vrmCurrent.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->vrmCurrent.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->vrmCurrent.setValue(slider->getValue(), true);
+            packet.amdData->vrmCurrent.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

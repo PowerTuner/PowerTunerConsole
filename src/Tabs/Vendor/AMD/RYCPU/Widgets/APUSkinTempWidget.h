@@ -17,15 +17,16 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class APUSkinTempWidget final: public SliderLimitWidget {
+    class APUSkinTempWidget final: public RADJSliderWidget {
     public:
-        APUSkinTempWidget(): SliderLimitWidget("APU Skin Temperature Limit",
+        explicit APUSkinTempWidget(const bool hasReadFeature): RADJSliderWidget("APU Skin Temperature Limit",
                                             "°C",
-                                            [](QLabel *unitV, const int v) { unitV->setNum(v); }) {}
+                                            [](QLabel *unitV, const int v) { unitV->setNum(v); },
+                                            hasReadFeature) {}
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->apuSkinTemp.isValid());
@@ -35,17 +36,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->apuSkinTemp.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->apuSkinTemp.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->apuSkinTemp.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->apuSkinTemp.setValue(slider->getValue(), true);
+            packet.amdData->apuSkinTemp.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

@@ -18,18 +18,26 @@
 #pragma once
 
 #include "../../../../Widgets/ConsoleSelect.h"
+#include "../../../../Widgets/ConsoleCheckbox.h"
 #include "pwtShared/Include/Packets/ClientPacket.h"
 #include "pwtShared/Include/Packets/DaemonPacket.h"
 
 namespace PWT::CUI::AMD {
     class PowerProfileWidget final: public QWidget {
+        Q_OBJECT
+
     private:
+        ConsoleCheckbox *enableChk = nullptr;
         ConsoleSelect *powerProfile = nullptr;
+        bool enableChecked = false;
 
     public:
         PowerProfileWidget();
 
         void setData(const PWTS::DaemonPacket &packet);
         void setDataForPacket(const PWTS::ClientPacket &packet) const;
+
+    private slots:
+        void onEnableStateChanged(Qt::CheckState state);
     };
 }

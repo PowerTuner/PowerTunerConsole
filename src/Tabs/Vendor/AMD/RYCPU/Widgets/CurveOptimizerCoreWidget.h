@@ -34,10 +34,12 @@ namespace PWT::CUI::AMD {
         };
 
         ConsoleCheckbox *applyToAll = nullptr;
+        ConsoleCheckbox *enableChk = nullptr;
         ConsoleSelect *cpuSelect = nullptr;
         ConsoleSliderUnit *co = nullptr;
-        int prevCpuSelected = 0;
         QList<WData> data;
+        bool enableChecked = false;
+        int prevCpuSelected = 0;
 
         void updateCOSlider(int idx) const;
 
@@ -51,5 +53,6 @@ namespace PWT::CUI::AMD {
     private slots:
         void onApplyToAllStateChanged(Qt::CheckState state) const;
         void onCpuSelectChanged(int idx);
+        void onEnableStateChanged(Qt::CheckState state);
     };
 }

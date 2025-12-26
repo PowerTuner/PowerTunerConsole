@@ -17,15 +17,16 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class VRMSocMaxCurrentWidget final: public SliderLimitWidget {
+    class VRMSocMaxCurrentWidget final: public RADJSliderWidget {
     public:
-        VRMSocMaxCurrentWidget(): SliderLimitWidget("VRM SoC Maximum Current Limit",
+        explicit VRMSocMaxCurrentWidget(const bool hasReadFeature): RADJSliderWidget("VRM SoC Maximum Current Limit",
                                                 "Amps",
-                                                [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); }) {}
+                                                [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); },
+                                                hasReadFeature) {}
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->vrmSocMaxCurrent.isValid());
@@ -35,17 +36,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->vrmSocMaxCurrent.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->vrmSocMaxCurrent.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->vrmSocMaxCurrent.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->vrmSocMaxCurrent.setValue(slider->getValue(), true);
+            packet.amdData->vrmSocMaxCurrent.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

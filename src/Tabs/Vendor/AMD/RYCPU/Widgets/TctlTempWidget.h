@@ -17,15 +17,16 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class TctlTempWidget final: public SliderLimitWidget {
+    class TctlTempWidget final: public RADJSliderWidget {
     public:
-        TctlTempWidget(): SliderLimitWidget("Thermal Limit Core",
+        explicit TctlTempWidget(const bool hasReadFeature): RADJSliderWidget("Thermal Limit Core",
                                         "°C",
-                                        [](QLabel *unitV, const int v) { unitV->setNum(v); }) {}
+                                        [](QLabel *unitV, const int v) { unitV->setNum(v); },
+                                        hasReadFeature) {}
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->tctlTemp.isValid());
@@ -35,17 +36,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->tctlTemp.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->tctlTemp.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->tctlTemp.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->tctlTemp.setValue(slider->getValue(), true);
+            packet.amdData->tctlTemp.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

@@ -17,15 +17,18 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class APUSlowLimitWidget final: public SliderLimitWidget {
+    class APUSlowLimitWidget final: public RADJSliderWidget {
     public:
-        APUSlowLimitWidget(): SliderLimitWidget("APU Slow Power Limit for A+A dGPU platform",
+        explicit APUSlowLimitWidget(const bool hasReadFeature): RADJSliderWidget("APU Slow Power Limit for A+A dGPU platform",
                                             "Watts",
-                                            [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); }) {}
+                                            [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); },
+                                            hasReadFeature) {
+            slider->setPageStep(100);
+        }
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->apuSlow.isValid());
@@ -35,17 +38,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->apuSlow.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->apuSlow.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->apuSlow.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->apuSlow.setValue(slider->getValue(), true);
+            packet.amdData->apuSlow.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

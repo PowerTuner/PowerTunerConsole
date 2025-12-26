@@ -263,10 +263,8 @@ if (WITH_AMD)
 
 		src/Tabs/Vendor/AMD/RYCPU/RYCPUTab.h
 		src/Tabs/Vendor/AMD/RYCPU/RYCPUTab.cpp
-		src/Tabs/Vendor/AMD/RYCPU/Include/SliderLimitWidget.h
-		src/Tabs/Vendor/AMD/RYCPU/Include/SliderLimitWidget.cpp
-		src/Tabs/Vendor/AMD/RYCPU/Include/SliderClockWidget.h
-		src/Tabs/Vendor/AMD/RYCPU/Include/SliderClockWidget.cpp
+		src/Tabs/Vendor/AMD/RYCPU/Include/RADJSliderWidget.h
+		src/Tabs/Vendor/AMD/RYCPU/Include/RADJSliderWidget.cpp
 		src/Tabs/Vendor/AMD/RYCPU/Widgets/APUSkinTempWidget.h
 		src/Tabs/Vendor/AMD/RYCPU/Widgets/APUSlowLimitWidget.h
 		src/Tabs/Vendor/AMD/RYCPU/Widgets/DGPUSkinTempWidget.h

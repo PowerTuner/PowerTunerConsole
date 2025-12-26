@@ -17,15 +17,18 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class FastLimitWidget final: public SliderLimitWidget {
+    class FastLimitWidget final: public RADJSliderWidget {
     public:
-        FastLimitWidget(): SliderLimitWidget("Actual Power Limit",
+        FastLimitWidget(): RADJSliderWidget("Actual Power Limit",
                                         "Watts",
-                                        [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); }) {}
+                                        [](QLabel *unitV, const int v) { unitV->setNum(static_cast<float>(v) / 1000); },
+                                        true) {
+            slider->setPageStep(100);
+        }
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->fastLimit.isValid());
@@ -35,10 +38,7 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->fastLimit.getValue();
-
-            if (val >= 0)
-                slider->setValue(val);
+            slider->setValue(packet.amdData->fastLimit.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {

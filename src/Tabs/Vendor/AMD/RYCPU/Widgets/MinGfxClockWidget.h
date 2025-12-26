@@ -17,13 +17,18 @@
  */
 #pragma once
 
-#include "../Include/SliderClockWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class MinGfxClockWidget final: public SliderClockWidget {
+    class MinGfxClockWidget final: public RADJSliderWidget {
     public:
-        MinGfxClockWidget(): SliderClockWidget("Minimum GFX Clock") {}
+        explicit MinGfxClockWidget(const bool hasReadFeature): RADJSliderWidget("Minimum GFX Clock",
+                                        "MHz",
+                                        [](QLabel *unitV, const int v) { unitV->setNum(v); },
+                                        hasReadFeature) {
+            slider->setPageStep(100);
+        }
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->minGfxClock.isValid());
@@ -33,19 +38,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->minGfxClock.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            slider->setValue(val == -1 ? slider->getMinumum() : val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->minGfxClock.isIgnored() : enableChecked);
+            }
 
-            if (!dontSet.isNull())
-                dontSet->setChecked(val <= 0);
+            slider->setValue(packet.amdData->minGfxClock.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->minGfxClock.setValue(getValue(), true);
+            packet.amdData->minGfxClock.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

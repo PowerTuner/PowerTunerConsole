@@ -23,24 +23,29 @@
 #include "pwtShared/Include/Packets/DaemonPacket.h"
 
 namespace PWT::CUI::AMD {
-    class SliderClockWidget: public QWidget {
+    class RADJSliderWidget: public QWidget {
         Q_OBJECT
 
     protected:
         ConsoleSliderUnit *slider = nullptr;
-        QPointer<ConsoleCheckbox> dontSet;
-
-        int getValue() const { return !dontSet.isNull() && dontSet->isChecked() ? -1 : slider->getValue(); }
+        QPointer<ConsoleCheckbox> enableChk;
+        bool enableChecked = false;
 
     public:
-        explicit SliderClockWidget(const QString &label, bool enableDontSet = false);
+        RADJSliderWidget(const QString &label, const QString &unit, const std::function<void(QLabel *,int)> &unitVCallback, bool hasReadFeature);
 
-        virtual void setData(const PWTS::DaemonPacket &packet) = 0;
+        void setMaximum(const int max) const { slider->setMaximum(max); }
+
         virtual void setDataForPacket(const PWTS::ClientPacket &packet) const = 0;
+        virtual void setData(const PWTS::DaemonPacket &packet) = 0;
 
         void setRange(const PWTS::MinMax &range) const;
 
     private slots:
-        void onDontSetChanged(Qt::CheckState state) const;
+        void onSliderValueChanged(int v);
+        void onEnableStateChanged(Qt::CheckState state);
+
+    signals:
+        void sliderValueChanged(int v);
     };
 }

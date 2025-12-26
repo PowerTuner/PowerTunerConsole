@@ -15,16 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "SliderLimitWidget.h"
+#include "RADJSliderWidget.h"
 
 namespace PWT::CUI::AMD {
-    SliderLimitWidget::SliderLimitWidget(const QString &label, const QString &unit, const std::function<void(QLabel *,int)> &unitVCallback) {
+    RADJSliderWidget::RADJSliderWidget(const QString &label, const QString &unit, const std::function<void(QLabel *,int)> &unitVCallback, const bool hasReadFeature) {
         QVBoxLayout *lyt = new QVBoxLayout();
 
         slider = new ConsoleSliderUnit(unit, unitVCallback);
 
         slider->setStaticLabel(label);
-        slider->setPageStep(100);
+
+        if (!hasReadFeature) { // cannot read its value from table, make this an optional setting
+            enableChk = new ConsoleCheckbox("Enable setting", "If unchecked, this setting is ignored and wont be applied");
+
+            lyt->addWidget(enableChk);
+
+            QObject::connect(enableChk, &ConsoleCheckbox::checkStateChanged, this, &RADJSliderWidget::onEnableStateChanged);
+        }
 
         lyt->setContentsMargins(0, 0, 0, 0);
         lyt->addWidget(slider);
@@ -32,16 +39,20 @@ namespace PWT::CUI::AMD {
         setLayout(lyt);
         setEnabled(false);
 
-        QObject::connect(slider, &ConsoleSliderUnit::valueChanged, this, &SliderLimitWidget::onSliderValueChanged);
+        QObject::connect(slider, &ConsoleSliderUnit::valueChanged, this, &RADJSliderWidget::onSliderValueChanged);
     }
 
-    void SliderLimitWidget::setRange(const PWTS::MinMax &range) const {
+    void RADJSliderWidget::setRange(const PWTS::MinMax &range) const {
         const QSignalBlocker sblock {slider};
 
         slider->setRange(range.min, range.max);
     }
 
-    void SliderLimitWidget::onSliderValueChanged(const int v) {
+    void RADJSliderWidget::onSliderValueChanged(const int v) {
         emit sliderValueChanged(v);
+    }
+
+    void RADJSliderWidget::onEnableStateChanged(const Qt::CheckState state) {
+        enableChecked = state == Qt::Checked;
     }
 }

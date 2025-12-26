@@ -23,105 +23,105 @@ namespace PWT::CUI::AMD {
     RYCPUTab::RYCPUTab(const PWTS::DeviceInfoPacket &packet) {
         const QSet<PWTS::Feature> &features = packet.features.cpu;
 
-        if (features.contains(PWTS::Feature::AMD_RY_FAST_LIMIT)) {
+        if (features.contains(PWTS::Feature::AMD_RY_FAST_LIMIT_W)) {
             fastLimitWidget = new FastLimitWidget();
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Package Power Tracking Fast Limit (PPT Fast)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), fastLimitWidget);
             QObject::connect(fastLimitWidget, &FastLimitWidget::sliderValueChanged, this, &RYCPUTab::onFastLimitChanged);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_SLOW_LIMIT)) {
+        if (features.contains(PWTS::Feature::AMD_RY_SLOW_LIMIT_W)) {
             slowLimitWidget = new SlowLimitWidget();
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Package Power Tracking Slow Limit (PPT Slow)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), slowLimitWidget);
             QObject::connect(slowLimitWidget, &SlowLimitWidget::sliderValueChanged, this, &RYCPUTab::onSlowLimitChanged);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_STAPM_LIMIT)) {
+        if (features.contains(PWTS::Feature::AMD_RY_STAPM_LIMIT_W)) {
             stapmLimitWidget = new StapmLimitWidget();
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Skin Temperature-Aware Power Management Limit (STAPM)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), stapmLimitWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_APU_SLOW)) {
-            apuSlowLimitWidget = new APUSlowLimitWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_APU_SLOW_W)) {
+            apuSlowLimitWidget = new APUSlowLimitWidget(features.contains(PWTS::Feature::AMD_RY_APU_SLOW_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Package Power Tracking APU Slow Limit (PPT APU)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), apuSlowLimitWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_TCTL_TEMP)) {
-            tctlTempWidget = new TctlTempWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_TCTL_TEMP_W)) {
+            tctlTempWidget = new TctlTempWidget(features.contains(PWTS::Feature::AMD_RY_TCTL_TEMP_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("T Control Temperature (TCTL)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), tctlTempWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_APU_SKIN_TEMP)) {
-            apuSkinTempWidget = new APUSkinTempWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_APU_SKIN_TEMP_W)) {
+            apuSkinTempWidget = new APUSkinTempWidget(features.contains(PWTS::Feature::AMD_RY_APU_SKIN_TEMP_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Smart Temperature Tracking APU (STT APU)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), apuSkinTempWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_DGPU_SKIN_TEMP)) {
-            dgpuSkinTempWidget = new DGPUSkinTempWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_DGPU_SKIN_TEMP_W)) {
+            dgpuSkinTempWidget = new DGPUSkinTempWidget(features.contains(PWTS::Feature::AMD_RY_DGPU_SKIN_TEMP_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Smart Temperature Tracking dGPU (STT dGPU)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), dgpuSkinTempWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_VRM_CURRENT)) {
-            vrmCurrentWidget = new VRMCurrentWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_VRM_CURRENT_W)) {
+            vrmCurrentWidget = new VRMCurrentWidget(features.contains(PWTS::Feature::AMD_RY_VRM_CURRENT_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Thermal Design Current Limit (TDC VDD)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), vrmCurrentWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_VRM_SOC_CURRENT)) {
-            vrmSocCurrentWidget = new VRMSocCurrentWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_VRM_SOC_CURRENT_W)) {
+            vrmSocCurrentWidget = new VRMSocCurrentWidget(features.contains(PWTS::Feature::AMD_RY_VRM_SOC_CURRENT_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Thermal Design Current Limit (TDC SoC)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), vrmSocCurrentWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_VRM_MAX_CURRENT)) {
-            vrmMaxCurrentWidget = new VRMMaxCurrentWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_VRM_MAX_CURRENT_W)) {
+            vrmMaxCurrentWidget = new VRMMaxCurrentWidget(features.contains(PWTS::Feature::AMD_RY_VRM_MAX_CURRENT_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Electrical Design Current Limit (EDC VDD)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), vrmMaxCurrentWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_VRM_SOC_MAX_CURRENT)) {
-            vrmSocMaxCurrentWidget = new VRMSocMaxCurrentWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_VRM_SOC_MAX_CURRENT_W)) {
+            vrmSocMaxCurrentWidget = new VRMSocMaxCurrentWidget(features.contains(PWTS::Feature::AMD_RY_VRM_SOC_MAX_CURRENT_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Electrical Design Current Limit (EDC SoC)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), vrmSocMaxCurrentWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_CO_ALL)) {
-            curveOptimizerAllWidget = new CurveOptimizerAllWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_CO_ALL_W)) {
+            curveOptimizerAllWidget = new CurveOptimizerAllWidget(false);
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Curve Optimizer (All Cores)"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), curveOptimizerAllWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_CO_PER)) {
+        if (features.contains(PWTS::Feature::AMD_RY_CO_PER_W)) {
             curveOptimizerCoreWidget = new CurveOptimizerCoreWidget(packet.cpuInfo.numCores);
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Curve Optimizer"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), curveOptimizerCoreWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_STATIC_GFX_CLK)) {
-            staticGfxClkWidget = new StaticGfxClkWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_STATIC_GFX_CLK_W)) {
+            staticGfxClkWidget = new StaticGfxClkWidget(features.contains(PWTS::Feature::AMD_RY_STATIC_GFX_CLK_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Force static GPU clock"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), staticGfxClkWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_MIN_GFX_CLOCK)) {
-            minGfxClockWidget = new MinGfxClockWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_MIN_GFX_CLOCK_W)) {
+            minGfxClockWidget = new MinGfxClockWidget(features.contains(PWTS::Feature::AMD_RY_MIN_GFX_CLOCK_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Minimum GFX Clock"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), minGfxClockWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_MAX_GFX_CLOCK)) {
-            maxGfxClockWidget = new MaxGfxClockWidget();
+        if (features.contains(PWTS::Feature::AMD_RY_MAX_GFX_CLOCK_W)) {
+            maxGfxClockWidget = new MaxGfxClockWidget(features.contains(PWTS::Feature::AMD_RY_MAX_GFX_CLOCK_R));
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Maximum GFX Clock"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), maxGfxClockWidget);
         }
 
-        if (features.contains(PWTS::Feature::AMD_RY_POWER_PROFILE)) {
+        if (features.contains(PWTS::Feature::AMD_RY_POWER_PROFILE_W)) {
             powerProfileWidget = new PowerProfileWidget();
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Power Profile"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), powerProfileWidget);

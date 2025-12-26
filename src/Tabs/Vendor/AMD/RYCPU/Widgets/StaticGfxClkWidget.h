@@ -17,13 +17,18 @@
  */
 #pragma once
 
-#include "../Include/SliderClockWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class StaticGfxClkWidget final: public SliderClockWidget {
+    class StaticGfxClkWidget final: public RADJSliderWidget {
     public:
-        StaticGfxClkWidget(): SliderClockWidget("Forced Clock Speed", true) {}
+        explicit StaticGfxClkWidget(const bool hasReadFeature): RADJSliderWidget("Forced Clock Speed",
+                                        "MHz",
+                                        [](QLabel *unitV, const int v) { unitV->setNum(v); },
+                                        hasReadFeature) {
+            slider->setPageStep(100);
+        }
 
         void setData(const PWTS::DaemonPacket &packet) override {
             setEnabled(packet.amdData->staticGfxClock.isValid());
@@ -33,19 +38,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->staticGfxClock.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            slider->setValue(val == -1 ? slider->getMinumum() : val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->staticGfxClock.isIgnored() : enableChecked);
+            }
 
-            if (!dontSet.isNull())
-                dontSet->setChecked(val <= 0);
+            slider->setValue(packet.amdData->staticGfxClock.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->staticGfxClock.setValue(getValue(), true);
+            packet.amdData->staticGfxClock.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

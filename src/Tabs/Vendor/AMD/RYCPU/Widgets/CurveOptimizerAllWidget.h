@@ -17,15 +17,16 @@
  */
 #pragma once
 
-#include "../Include/SliderLimitWidget.h"
+#include "../Include/RADJSliderWidget.h"
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::AMD {
-    class CurveOptimizerAllWidget final: public SliderLimitWidget {
+    class CurveOptimizerAllWidget final: public RADJSliderWidget {
     public:
-        CurveOptimizerAllWidget(): SliderLimitWidget("Offset",
+        explicit CurveOptimizerAllWidget(const bool hasReadFeature): RADJSliderWidget("Offset",
                                             "",
-                                            [](QLabel *unitV, const int v) { unitV->setNum(v); }) {
+                                            [](QLabel *unitV, const int v) { unitV->setNum(v); },
+                                            hasReadFeature) {
             slider->setPageStep(10);
         }
 
@@ -37,17 +38,20 @@ namespace PWT::CUI::AMD {
                 return;
             }
 
-            const int val = packet.amdData->curveOptimizer.getValue();
+            if (!enableChk.isNull()) {
+                const QSignalBlocker sblock {enableChk};
 
-            if (val >= 0)
-                slider->setValue(val);
+                enableChk->setChecked(packet.hasProfileData ? !packet.amdData->curveOptimizer.isIgnored() : enableChecked);
+            }
+
+            slider->setValue(packet.amdData->curveOptimizer.getValue());
         }
 
         void setDataForPacket(const PWTS::ClientPacket &packet) const override {
             if (!isEnabled())
                 return;
 
-            packet.amdData->curveOptimizer.setValue(slider->getValue(), true);
+            packet.amdData->curveOptimizer.setValue(slider->getValue(), true, !enableChk.isNull() && !enableChk->isChecked());
         }
     };
 }

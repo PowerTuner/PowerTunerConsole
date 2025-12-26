@@ -24,15 +24,19 @@ namespace PWT::CUI::AMD {
     PowerProfileWidget::PowerProfileWidget() {
         QVBoxLayout *lyt = new QVBoxLayout();
 
-        powerProfile = new ConsoleSelect("Power profile", "Hidden option to improve power efficiency. Behavior depends on CPU, device and manufacturer");
+        enableChk = new ConsoleCheckbox("Enable setting");
+        powerProfile = new ConsoleSelect("Power profile", "Hidden option to set power mode.");
 
-        powerProfile->addOptions({"power saving", "max performance", "don't set"});
+        powerProfile->addOptions({"power saving", "max performance"});
 
         lyt->setContentsMargins(0, 0, 0, 0);
+        lyt->addWidget(enableChk);
         lyt->addWidget(powerProfile);
 
         setLayout(lyt);
         setEnabled(false);
+
+        QObject::connect(enableChk, &ConsoleCheckbox::checkStateChanged, this, &PowerProfileWidget::onEnableStateChanged);
     }
 
     void PowerProfileWidget::setData(const PWTS::DaemonPacket &packet) {
@@ -44,13 +48,14 @@ namespace PWT::CUI::AMD {
         }
 
         const int val = packet.amdData->powerProfile.getValue();
+        const QSignalBlocker sblock {enableChk};
 
         if (val == 0)
             powerProfile->setCurrentIndex(0);
         else if (val == 1)
             powerProfile->setCurrentIndex(1);
-        else
-            powerProfile->setCurrentIndex(2);
+
+        enableChk->setChecked(packet.hasProfileData ? !packet.amdData->powerProfile.isIgnored() : enableChecked);
     }
 
     void PowerProfileWidget::setDataForPacket(const PWTS::ClientPacket &packet) const {
@@ -65,5 +70,9 @@ namespace PWT::CUI::AMD {
             packet.amdData->powerProfile.setValue(1, true);
         else
             packet.amdData->powerProfile.setValue(-1, true);
+    }
+
+    void PowerProfileWidget::onEnableStateChanged(const Qt::CheckState state) {
+        enableChecked = state == Qt::Checked;
     }
 }
