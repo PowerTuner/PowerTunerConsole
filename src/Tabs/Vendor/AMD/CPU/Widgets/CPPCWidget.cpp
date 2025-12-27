@@ -31,10 +31,12 @@ namespace PWT::CUI::AMD {
             cpuSelect->addOption(QString::number(i));
 
         if (cpuFeatures.contains(PWTS::Feature::AMD_PSTATE_SYSFS) || cpuFeatures.contains(PWTS::Feature::PWR_SCHEME_GROUP)) {
-            preferOSOpt = new ConsoleCheckbox("Prefer OS setting", "If checked, this option is ignored and the OS setting will be applied instead, for example SysFs in Linux or power scheme option in Windows.");
+            preferOSSettng = new ConsoleCheckbox("Prefer OS setting", "If checked, this option is ignored and the OS setting will be applied instead, for example SysFs in Linux or power scheme option in Windows.");
 
-            preferOSOpt->setChecked(true);
-            lyt->addWidget(preferOSOpt);
+            preferOSSettng->setChecked(true);
+            lyt->addWidget(preferOSSettng);
+
+            QObject::connect(preferOSSettng, &ConsoleCheckbox::checkStateChanged, this, &CPPCWidget::onPreferOSStateChanged);
         }
 
         lyt->setContentsMargins(0, 0, 0, 0);
@@ -72,8 +74,14 @@ namespace PWT::CUI::AMD {
         const int enableBitValid = packet.amdData->cppcEnableBit.isValid();
         const int enableBit = packet.amdData->cppcEnableBit.getValue();
 
-        enable->setEnabled(enableBitValid && enableBit == 0);
+        enable->setEnabled(enableBitValid);
         enable->setChecked(enableBitValid && enableBit == 1);
+
+        if (!preferOSSettng.isNull()) {
+            const QSignalBlocker sblock {preferOSSettng};
+
+            preferOSSettng->setChecked(packet.hasProfileData ? packet.amdData->cppcEnableBit.isIgnored() : preferOSChecked);
+        }
 
         for (const PWTS::AMD::AMDThreadData &thd: packet.amdData->threadData) {
             data.append({
@@ -87,12 +95,13 @@ namespace PWT::CUI::AMD {
     }
 
     void CPPCWidget::setDataForPacket(const PWTS::ClientPacket &packet) {
-        if (!isEnabled() || (!preferOSOpt.isNull() && preferOSOpt->isChecked()))
+        if (!isEnabled())
             return;
 
         const PWTS::AMD::CPPCRequest reqData = cppcThreadWidget->getData();
+        const bool isIgnored = !preferOSSettng.isNull() && preferOSSettng->isChecked();
 
-        packet.amdData->cppcEnableBit.setValue(enable->isChecked(), enable->isEnabled());
+        packet.amdData->cppcEnableBit.setValue(enable->isChecked(), enable->isEnabled(), isIgnored);
 
         if (applyToAll->isChecked()) {
             for (WData &wd: data) {
@@ -112,7 +121,7 @@ namespace PWT::CUI::AMD {
 
         for (int i=0,l=data.size(); i<l; ++i) {
             if (data[i].valid)
-                packet.amdData->threadData[i].cppcRequest.setValue(data[i].request, true);
+                packet.amdData->threadData[i].cppcRequest.setValue(data[i].request, true, isIgnored);
         }
     }
 
@@ -127,5 +136,9 @@ namespace PWT::CUI::AMD {
         prevCpuSelect = idx;
 
         updateCPPCWidget(idx);
+    }
+
+    void CPPCWidget::onPreferOSStateChanged(const Qt::CheckState state) {
+        preferOSChecked = state == Qt::Checked;
     }
 }
