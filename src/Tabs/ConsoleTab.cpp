@@ -45,7 +45,7 @@ namespace PWT::CUI {
 
         cw->setFocus(Qt::TabFocusReason);
 
-        if (focusIdx == 0)
+        if (focusIdx <= 1)
             scrollToTop();
         else if (!isWidgetFullyVisible(cw))
             scrollArea->ensureWidgetVisible(cw);
