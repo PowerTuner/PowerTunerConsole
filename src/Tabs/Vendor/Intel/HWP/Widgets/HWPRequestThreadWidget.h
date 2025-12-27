@@ -46,7 +46,7 @@ namespace PWT::CUI::INTEL {
         explicit HWPRequestThreadWidget(const QSet<PWTS::Feature> &cpuFeatures, int threadCount);
 
         void setData(const PWTS::DaemonPacket &packet);
-        void setDataForPacket(const PWTS::ClientPacket &packet);
+        void setDataForPacket(const PWTS::ClientPacket &packet, bool isIgnored);
 
     private slots:
         void onApplyToAllStateChanged(Qt::CheckState state) const;

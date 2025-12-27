@@ -24,16 +24,23 @@
 
 namespace PWT::CUI::INTEL {
     class HWPTab final: public AddonTab {
+        Q_OBJECT
+
     private:
         ConsoleCheckbox *enableHWP = nullptr;
         HWPRequestThreadWidget *hwpRequestThreadWidget = nullptr;
         QPointer<HWPRequestPkgWidget> hwpRequestPkgWidget;
         QPointer<ConsoleCheckbox> hwpPkgCtlPolarity;
+        QPointer<ConsoleCheckbox> preferOSSettng;
+        bool preferOSChecked = true;
 
     public:
         explicit HWPTab(const PWTS::DeviceInfoPacket &packet);
 
         void refreshTab(const PWTS::DaemonPacket &packet) override;
         void setDataForPacket(PWTS::ClientPacket &packet) const override;
+
+    private slots:
+        void onPreferOSStateChanged(Qt::CheckState state);
     };
 }

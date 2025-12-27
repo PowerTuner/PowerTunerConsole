@@ -19,7 +19,7 @@
 #include "pwtClientCommon/UILogger.h"
 
 namespace PWT::CUI::INTEL {
-    HWPRequestThreadWidget::HWPRequestThreadWidget(const QSet<PWTS::Feature> &cpuFeatures, int threadCount) {
+    HWPRequestThreadWidget::HWPRequestThreadWidget(const QSet<PWTS::Feature> &cpuFeatures, const int threadCount) {
         QVBoxLayout *lyt = new QVBoxLayout();
 
         applyToAll = new ConsoleCheckbox("Apply to all CPUs");
@@ -76,7 +76,7 @@ namespace PWT::CUI::INTEL {
         updateHwpReqWidget(cpuSelect->getCurrentIndex());
     }
 
-    void HWPRequestThreadWidget::setDataForPacket(const PWTS::ClientPacket &packet) {
+    void HWPRequestThreadWidget::setDataForPacket(const PWTS::ClientPacket &packet, const bool isIgnored) {
         if (!isEnabled())
             return;
 
@@ -100,7 +100,7 @@ namespace PWT::CUI::INTEL {
 
         for (int i=0,l=data.size(); i<l; ++i) {
             if (data[i].valid)
-                packet.intelData->threadData[i].hwpRequest.setValue(data[i].request, true);
+                packet.intelData->threadData[i].hwpRequest.setValue(data[i].request, true, isIgnored);
         }
     }
 

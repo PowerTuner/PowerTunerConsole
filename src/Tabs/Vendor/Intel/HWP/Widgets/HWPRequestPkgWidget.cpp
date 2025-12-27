@@ -64,10 +64,10 @@ namespace PWT::CUI::INTEL {
         hwpRequestWidget->setRequestPkgData(reqPkg);
     }
 
-    void HWPRequestPkgWidget::setDataForPacket(const PWTS::ClientPacket &packet) const {
+    void HWPRequestPkgWidget::setDataForPacket(const PWTS::ClientPacket &packet, const bool isIgnored) const {
         if (!isEnabled())
             return;
 
-        packet.intelData->hwpRequestPkg.setValue(hwpRequestWidget->getRequestPkgData(), isEnabled());
+        packet.intelData->hwpRequestPkg.setValue(hwpRequestWidget->getRequestPkgData(), isEnabled(), isIgnored);
     }
 }
