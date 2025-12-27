@@ -27,7 +27,7 @@ namespace PWT::CUI::AMD {
         enableChk = new ConsoleCheckbox("Enable setting");
         powerProfile = new ConsoleSelect("Power profile", "Hidden option to set power mode.");
 
-        powerProfile->addOptions({"power saving", "max performance"});
+        powerProfile->addOptions({"power saving", "max performance", ""});
 
         lyt->setContentsMargins(0, 0, 0, 0);
         lyt->addWidget(enableChk);
@@ -54,6 +54,8 @@ namespace PWT::CUI::AMD {
             powerProfile->setCurrentIndex(0);
         else if (val == 1)
             powerProfile->setCurrentIndex(1);
+        else
+            powerProfile->setCurrentIndex(2);
 
         enableChk->setChecked(packet.hasProfileData ? !packet.amdData->powerProfile.isIgnored() : enableChecked);
     }
