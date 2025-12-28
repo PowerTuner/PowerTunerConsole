@@ -138,7 +138,7 @@ namespace PWT::CUI {
                 else
                     p->setBrush(opt->palette.color(QPalette::Window));
 
-                p->drawRect(opt->rect);
+                p->drawRect(QRect(2, 2, opt->rect.width(), opt->rect.height()));
                 p->setBrush(oldBrush);
             }
                 break;
