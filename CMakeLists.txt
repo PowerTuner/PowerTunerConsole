@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(PowerTunerConsole VERSION 1.0 DESCRIPTION "Official PowerTuner Console Client" LANGUAGES CXX)
+project(PowerTunerConsole VERSION 1.1 DESCRIPTION "Official PowerTuner Console Client" LANGUAGES CXX)
 
 option(WITH_INTEL "Enable support for Intel CPUs" ON)
 option(WITH_AMD "Enable support for AMD CPUs" ON)
