@@ -23,10 +23,10 @@
 namespace PWT::CUI::AMD {
     class StaticGfxClkWidget final: public RADJSliderWidget {
     public:
-        explicit StaticGfxClkWidget(const bool hasReadFeature): RADJSliderWidget("Forced Clock Speed",
+        explicit StaticGfxClkWidget(): RADJSliderWidget("Forced Clock Speed",
                                         "MHz",
                                         [](QLabel *unitV, const int v) { unitV->setNum(v); },
-                                        hasReadFeature) {
+                                        false) {
             slider->setPageStep(100);
         }
 

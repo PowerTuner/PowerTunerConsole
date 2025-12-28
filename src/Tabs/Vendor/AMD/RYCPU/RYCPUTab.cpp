@@ -104,7 +104,7 @@ namespace PWT::CUI::AMD {
         }
 
         if (features.contains(PWTS::Feature::AMD_RY_STATIC_GFX_CLK_W)) {
-            staticGfxClkWidget = new StaticGfxClkWidget(features.contains(PWTS::Feature::AMD_RY_STATIC_GFX_CLK_R));
+            staticGfxClkWidget = new StaticGfxClkWidget();
             scrollWidgLyt->insertWidget(nextInsertIdx(), new SectionWidget("Force static GPU clock"));
             scrollWidgLyt->insertWidget(nextInsertIdx(), staticGfxClkWidget);
         }
