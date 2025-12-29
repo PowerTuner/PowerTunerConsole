@@ -155,6 +155,16 @@ RET:        Return (enter key)
 This is a special action you can activate on sliders, when they are focused,
 that allows to switch between a slider input or text input, depending on your needs.
 
+## Linux
+
+### Wayland
+
+Wayland lacks support for some features, either as a design choice, or still not implemented, experience may not be on par with X11.
+
+Floating icon will never work on wayland because it wont allow applications to control their windows, use tray icon instead.
+
+Applications are not allowed to put themselves on top of other windows, the "overlay mode" may not work as expected.
+
 ## Build
 
 clone this repo:
