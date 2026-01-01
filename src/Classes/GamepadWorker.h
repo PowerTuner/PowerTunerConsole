@@ -48,7 +48,7 @@ namespace PWT::CUI {
         QList<std::tuple<uint32_t, uint8_t, uint32_t>> ignoreList;
         QHash<SDL_JoystickID, Gamepad> sdlGamepadMap;
         GamepadButton heldButton = GamepadButton::UNKNOWN;
-        SDL_JoystickID activeID = -1;
+        SDL_JoystickID activeID = 0;
         bool allGamepadsMode = false;
         bool hasFocus = false;
         QElapsedTimer etimer;

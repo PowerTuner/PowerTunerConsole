@@ -77,14 +77,14 @@ namespace PWT::CUI {
 
     SDL_JoystickID GamepadWorker::getJoystickID(const QString &gamepadID) const {
         if (gamepadID.isEmpty())
-            return -1;
+            return 0;
 
         for (const auto &[jid, gpad]: sdlGamepadMap.asKeyValueRange()) {
             if (gpad.id == gamepadID)
                 return jid;
         }
 
-        return -1;
+        return 0;
     }
 
     void GamepadWorker::setHeldButton(const GamepadButton button, const int timeout, const int repeatTimeout) {
@@ -525,7 +525,7 @@ namespace PWT::CUI {
     }
 
     void GamepadWorker::setActiveID(const QString &gamepadID) {
-        if (!allGamepadsMode && activeID != -1) {
+        if (!allGamepadsMode && activeID != 0) {
             Gamepad gpad = sdlGamepadMap[activeID];
 
             if (gpad.pad != nullptr) {
@@ -536,9 +536,9 @@ namespace PWT::CUI {
 
         const SDL_JoystickID jid = getJoystickID(gamepadID);
 
-        if (jid == -1) {
+        if (jid == 0) {
             emit logMessageSent(QStringLiteral("GamepadWorker::setActiveID: failed to set active gamepad"));
-            activeID = -1;
+            activeID = 0;
             return;
         }
 
@@ -548,7 +548,7 @@ namespace PWT::CUI {
             if (sdlGamepadMap[jid].pad == nullptr) {
                 emit logMessageSent(QString("Failed to open gamepad: %1").arg(SDL_GetError()));
                 SDL_ClearError();
-                activeID = -1;
+                activeID = 0;
                 return;
             }
         }
@@ -559,7 +559,7 @@ namespace PWT::CUI {
     void GamepadWorker::setDeadzone(const QString &gamepadID, const int deadzone) {
         const SDL_JoystickID id = getJoystickID(gamepadID);
 
-        if (id == -1)
+        if (id == 0)
             return;
 
         sdlGamepadMap[id].deadzone = deadzone * 1000;
@@ -569,7 +569,7 @@ namespace PWT::CUI {
         for (const auto &[id, dz]: data) {
             SDL_JoystickID jid = getJoystickID(id);
 
-            if (jid == -1)
+            if (jid == 0)
                 continue;
 
             sdlGamepadMap[jid].deadzone = dz * 1000;
