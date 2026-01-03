@@ -9,6 +9,8 @@ set(PROJECT_AUTHOR "kylon")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PRIV_DEFS "")
+set(DCOMPILE_OPTS "")
+set(DLINK_OPTS "")
 
 find_package(Qt6 6.10 REQUIRED COMPONENTS Core Widgets Network TextToSpeech)
 
@@ -341,8 +343,16 @@ if (has_ipo)
 	set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:DEBUG>:-Wall -fsanitize=address,undefined -Wno-padded>)
-target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:DEBUG>:-fsanitize=address,undefined>)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	list(APPEND DCOMPILE_OPTS /W3 /wo4061)
+
+else (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	list(APPEND DCOMPILE_OPTS -Wall -fsanitize=address,undefined -Wno-padded)
+	list(APPEND DLINK_OPTS -fsanitize=address,undefined)
+endif ()
+
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:DEBUG>:${DCOMPILE_OPTS}>)
+target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:DEBUG>:${DLINK_OPTS}>)
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${PRIV_DEFS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
