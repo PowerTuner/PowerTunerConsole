@@ -18,6 +18,8 @@
 #include <QCoreApplication>
 #include <QThread>
 
+#include "../external/SDL/include/SDL3/SDL_init.h"
+#include "../external/SDL/include/SDL3/SDL_hints.h"
 #include "../external/SDL/include/SDL3/SDL_events.h"
 #include "GamepadWorker.h"
 
@@ -25,6 +27,8 @@ namespace PWT::CUI {
     GamepadWorker::~GamepadWorker() {
         for (auto [jid, gpad]: sdlGamepadMap.asKeyValueRange())
             SDL_CloseGamepad(gpad.pad);
+
+        SDL_Quit();
     }
 
     QString GamepadWorker::getGamepadLabel(const SDL_JoystickID id) {
@@ -199,6 +203,14 @@ namespace PWT::CUI {
     }
 
     void GamepadWorker::startSDLEventsThread() {
+        SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");
+
+        if (!SDL_Init(SDL_INIT_GAMEPAD)) {
+            emit logMessageSent("Failed to init SDL gamepad subsystem");
+            emit initFail();
+            return;
+        }
+
         while (true) {
             SDL_Event evt;
             const bool hasEvent = SDL_PollEvent(&evt);

@@ -85,6 +85,7 @@ private:
     void initFloatIcon();
     void initTTS();
     void disableTTS();
+    void quitGamepadThread();
     void quitApp() const;
     void setActiveGamepad(const QString &gamepadID);
     void initMain(const PWTS::DeviceInfoPacket &packet);
@@ -122,6 +123,7 @@ public:
 
 private slots:
     void onLogMessageSent(const QString &msg);
+    void onSDLInitFail();
     void onReloadGamepadMappings();
     void onConsoleSettingsSaved();
     void onShowMainWindow();

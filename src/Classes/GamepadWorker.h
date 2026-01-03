@@ -80,6 +80,7 @@ namespace PWT::CUI {
 
     signals:
         void logMessageSent(const QString &msg);
+        void initFail();
         void gamepadConnected(const QString &gamepadLbl, const QString &gamepadID);
         void gamepadDisconnected(const QString &gamepadID);
         void gamepadButton(const QString &id, PWT::GamepadButton button);

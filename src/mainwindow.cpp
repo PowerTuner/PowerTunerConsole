@@ -22,8 +22,7 @@
 #include "./ui_mainwindow.h"
 #include "ConsoleStyle.h"
 #include "../version.h"
-#include "external/SDL/include/SDL3/SDL_init.h"
-#include "external/SDL/include/SDL3/SDL_hints.h"
+#include "external/SDL/include/SDL3/SDL_events.h"
 #include "pwtShared/Utils.h"
 #include "pwtClientCommon/CommonUtils.h"
 #include "pwtClientCommon/UILogger.h"
@@ -43,9 +42,7 @@
 #endif
 
 MainWindow::~MainWindow() {
-    gamepadThread.quit();
-    gamepadThread.wait();
-    SDL_Quit();
+    quitGamepadThread();
     disableTTS();
 
     if (!trayIcon.isNull())
@@ -82,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     consoleSettings = PWT::ConsoleSettings::getInstance();
     inputRanges = PWT::UI::InputRanges::getInstance();
     statusBar = new PWT::CUI::StatusBar();
+    gamepadWorker = new PWT::CUI::GamepadWorker();
     tabWidget = new QTabWidget();
     homeTab = new PWT::CUI::HomeTab();
     logTab = new PWT::CUI::LogTab();
@@ -101,9 +99,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     tabWidget->setFocusPolicy(Qt::NoFocus);
     ui->centralwidget->setFocusPolicy(Qt::NoFocus);
     onTabChanged(0);
-    SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "0");
     windowEventTimer->setSingleShot(true);
     windowEventTimer->setInterval(650);
+    gamepadWorker->moveToThread(&gamepadThread);
 
     lyt->addWidget(tabWidget);
     lyt->addWidget(statusBar);
@@ -112,31 +110,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
     if (!appDataPath.isEmpty())
         onLogMessageSent(QString("Console client data path: %1").arg(appDataPath));
-
-    if (!SDL_Init(SDL_INIT_GAMEPAD)) {
-        onLogMessageSent("Failed to init SDL gamepad subsystem");
-
-    } else {
-        gamepadWorker = new PWT::CUI::GamepadWorker();
-
-        gamepadWorker->moveToThread(&gamepadThread);
-
-        QObject::connect(&gamepadThread, &QThread::finished, gamepadWorker, &QObject::deleteLater);
-        QObject::connect(&gamepadThread, &QThread::started, gamepadWorker, &PWT::CUI::GamepadWorker::startSDLEventsThread);
-        QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::logMessageSent, this, &MainWindow::onLogMessageSent);
-        QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadConnected, this, &MainWindow::onGamepadConnected);
-        QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadDisconnected, this, &MainWindow::onGamepadDisconnected);
-        QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadButton, this, &MainWindow::onGamepadButton);
-        QObject::connect(windowEventTimer.get(), &QTimer::timeout, this, &MainWindow::onWindowEventTimerTimeout);
-        QObject::connect(this, &MainWindow::activeGamepadSet, gamepadWorker, &PWT::CUI::GamepadWorker::setActiveID);
-        QObject::connect(this, &MainWindow::allGamepadsModeChange, gamepadWorker, &PWT::CUI::GamepadWorker::setAllGamepadsMode);
-        QObject::connect(this, &MainWindow::deadzoneUpdated, gamepadWorker, &PWT::CUI::GamepadWorker::setDeadzone);
-        QObject::connect(this, &MainWindow::deadzoneDataUpdated, gamepadWorker, &PWT::CUI::GamepadWorker::setGamepadsDeadzoneData);
-        QObject::connect(this, &MainWindow::focusChanged, gamepadWorker, &PWT::CUI::GamepadWorker::focusChange);
-
-        loadControllerDB();
-        gamepadThread.start();
-    }
 
     QObject::connect(PWT::UI::UILogger::getInstance().get(), &PWT::UI::UILogger::logWritten, this, &MainWindow::onLogMessageSent);
     QObject::connect(tabWidget, &QTabWidget::currentChanged, this, &MainWindow::onTabChanged);
@@ -167,7 +140,22 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     QObject::connect(service.get(), &PWTCS::ClientService::serviceDisconnected, this, &MainWindow::onServiceDisconnected);
     QObject::connect(consoleSettings.get(), &PWT::ConsoleSettings::logMessageSent, this, &MainWindow::onLogMessageSent);
     QObject::connect(inputRanges.get(), &PWT::UI::InputRanges::logMessageSent, this, &MainWindow::onLogMessageSent);
+    QObject::connect(&gamepadThread, &QThread::finished, gamepadWorker, &QObject::deleteLater);
+    QObject::connect(&gamepadThread, &QThread::started, gamepadWorker, &PWT::CUI::GamepadWorker::startSDLEventsThread);
+    QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::logMessageSent, this, &MainWindow::onLogMessageSent);
+    QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::initFail, this, &MainWindow::onSDLInitFail);
+    QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadConnected, this, &MainWindow::onGamepadConnected);
+    QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadDisconnected, this, &MainWindow::onGamepadDisconnected);
+    QObject::connect(gamepadWorker, &PWT::CUI::GamepadWorker::gamepadButton, this, &MainWindow::onGamepadButton);
+    QObject::connect(windowEventTimer.get(), &QTimer::timeout, this, &MainWindow::onWindowEventTimerTimeout);
+    QObject::connect(this, &MainWindow::activeGamepadSet, gamepadWorker, &PWT::CUI::GamepadWorker::setActiveID);
+    QObject::connect(this, &MainWindow::allGamepadsModeChange, gamepadWorker, &PWT::CUI::GamepadWorker::setAllGamepadsMode);
+    QObject::connect(this, &MainWindow::deadzoneUpdated, gamepadWorker, &PWT::CUI::GamepadWorker::setDeadzone);
+    QObject::connect(this, &MainWindow::deadzoneDataUpdated, gamepadWorker, &PWT::CUI::GamepadWorker::setGamepadsDeadzoneData);
+    QObject::connect(this, &MainWindow::focusChanged, gamepadWorker, &PWT::CUI::GamepadWorker::focusChange);
 
+    loadControllerDB();
+    gamepadThread.start();
     loadConsoleSettings();
 }
 
@@ -301,10 +289,19 @@ void MainWindow::disableTTS() {
     ttsThread = nullptr;
 }
 
-void MainWindow::quitApp() const {
-    SDL_Event sdlEvt {.type = SDL_EVENT_QUIT};
+void MainWindow::quitGamepadThread() {
+    gamepadThread.quit();
+    gamepadThread.wait();
+    gamepadWorker = nullptr;
+}
 
-    SDL_PushEvent(&sdlEvt);
+void MainWindow::quitApp() const {
+    if (gamepadWorker != nullptr) {
+        SDL_Event sdlEvt {.type = SDL_EVENT_QUIT};
+
+        SDL_PushEvent(&sdlEvt);
+    }
+
     QApplication::quit();
 }
 
@@ -763,6 +760,10 @@ void MainWindow::onLogMessageSent(const QString &msg) {
 
     if (!ttsThread.isNull())
         emit sayTTS(tr("logs page updated"), PWT::CUI::TTSID::NEW_UI_LOGS);
+}
+
+void MainWindow::onSDLInitFail() {
+    quitGamepadThread();
 }
 
 void MainWindow::onReloadGamepadMappings() {
