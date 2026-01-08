@@ -62,9 +62,64 @@ This is a gamepad first UI, keyboard controls were made available for easy of de
 
 Keyboard controls remap is available in **Settings** tab, it does apply to all connected keyboards.
 
+**Default mapping**
+
+```text
+Previous tab                    F1
+Next tab                        F2
+Left                            Left arrow
+Fast left                       < (angle bracket, less-than)
+Right                           Right arrow
+Fast right                      > (angle bracket, greater-than)
+Up                              Up arrow
+Down                            Down arrow
+Click                           X
+Back                            ESC
+Reload values from daemon       F5
+Apply current settings          F6
+Input mode switch               T
+Scroll up                       J
+Scroll down                     K
+Scroll left                     N
+Scroll right                    M
+Scroll page up                  PageUp
+Scroll page down                PageDown
+Scroll page to top              F3
+Scroll page to bottom           F4
+```
+
 ### Gamepad
 
 Gamepad support is provided by latest [SDL](https://github.com/libsdl-org/SDL).
+
+**Default mapping**
+
+```text
+Previous tab                    L1
+Next tab                        R1
+Left                            Dpad left
+Fast left                       L2
+Right                           Dpad right
+Fast right                      R2
+Up                              Dpad up
+Down                            Dpad down
+Click                           A (XBOX) / X (Playstation) / B (Nintendo)
+Back                            B (XBOX) / O (Playstation) / A (Nintendo)
+Reload values from daemon       Start
+Apply current settings          Select
+Input mode switch               Y (XBOX) / /\ (Playstation) / X (Nintendo)
+Scroll up                       Left analog up
+Scroll down                     Left analog down
+Scroll left                     Left analog left
+Scroll right                    Left analog right
+Scroll page up                  Right analog up
+Scroll page down                Right analog down
+Scroll page to top              Right analog left
+Scroll page to bottom           Right analog right
+Show/Hide client combo          L1 + Dpad down + (X (XBOX) / [ ] (Playstation) / Y (Nintendo))
+```
+
+_3rd party controllers, and unofficial controllers, may have different face buttons_
 
 In addition, [SDL GameControllerDB](https://github.com/mdqinc/SDL_GameControllerDB) is built-in and loaded on boot.
 
